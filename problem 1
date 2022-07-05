@@ -1,0 +1,158 @@
+
+#1
+classes<-c('numeric','integer','character','character','character','integer','character','integer','integer','integer','integer','integer','integer','character')
+fil<-read.csv("MedicalAppointments.csv",header = TRUE,sep = ",",colClasses = classes)
+#2.1
+table(fil$Neighbourhood)
+
+
+#2.2
+hist(fil$PatientId)
+
+hist(log2(table(fil$PatientId))+1,col = 2,freq = TRUE)#hist with normalization
+
+#2.3
+table(fil$Age) #with 0 and -1
+plot(density(fil$Age))#without filter(0,-1)
+#----------------------
+fil<-fil[!(fil$Age==0 | fil$Age==-1),]
+table(fil$Age)
+plot(density(fil$Age))
+
+
+#2.4
+#na<-is.na(fil[,])#another method
+na<-is.na(fil)
+table(na)
+
+#2.5
+#--------------------------------------------
+
+iterate_wrong_Scholarship=0 
+for (i in 1:length(fil$Scholarship)) 
+{
+  if(fil$Scholarship[i]<0|fil$Scholarship[i]>1) 
+  { 
+    counter_wrong_Scholarship=iterate_wrong_Scholarship+1
+    print("There is wrong values ") 
+    print(fil$Scholarship[i])
+  } 
+} 
+print("number of wrong Scholarship ") 
+print(iterate_wrong_Scholarship)
+
+#_________________________________________________________________
+iterate_wrong_Handcap=0 
+for (i in 1:length(fil$Handcap)) 
+{
+  if(fil$Handcap[i]<0|fil$Handcap[i]>1) 
+  { 
+    iterate_wrong_Handcap=iterate_wrong_Handcap+1
+    print("There is wrong values ") 
+    print(fil$Handcap[i])
+  } 
+} 
+print("number of wrong Handcap ")
+print(iterate_wrong_Handcap)
+table(fil$Handcap)
+
+#Handcap_filtered=filter(fil,fil$Handcap<0|fil$Handcap>1)
+
+#_______________________________________________________
+
+Age_filtered=fil[!(fil$Age==0 | fil$Age==-1),]
+# No wrong values
+#_______________________________________________________
+
+
+SMS_filtered=filter(fil,fil$SMS_received>=2)
+# No wrong values
+#__________________________________________________________
+
+
+Alcholism_filtered<-filter(fil,fil$Alcoholism<0|fil$Alcoholism>1)
+# No wrong values
+#_____________________________________________________________
+
+
+
+Diabetes_filtered<-filter(fil,fil$Diabetes<0|fil$Diabetes>1)
+
+# No wrong values
+#_____________________________________________________________
+
+
+Hipertension_filtered<-filter(fil,fil$Hipertension<0|fil$Hipertension>1)
+# No wrong values
+#_____________________________________________________________
+
+
+Gender_filtered<-filter(fil,fil$Gender!="M"|fil$Gender!="F")
+# No wrong values
+#_____________________________________________________________
+#2.6
+male=subset(fil,Gender=="M")
+female=subset(fil,Gender=="F")
+par(mfrow=c(1,2))
+plot(density(male$Age))
+plot(density(female$Age))
+
+
+#2.7
+tableVisits<-table(Patient=fil$PatientId,NoShow=fil$No.show)
+tableVisits
+trueVisit=tableVisits[,"Yes"]
+total=table(fil$PatientId)
+average=trueVisit/total
+average
+
+
+#2.8
+fil<-fil[!(fil$Age==0 | fil$Age==-1),]
+children<-subset(fil$Age,fil$Age<12&fil$No.show=="Yes")
+sum(children)
+#######
+teenagers<-subset(fil$Age,fil$Age>=12&fil$Age<18&fil$No.show=="Yes")
+table(teenagers)
+sum(teenagers)
+#######
+adults<-subset(fil$Age,fil$Age>=18&fil$Age<21&fil$No.show=="Yes")
+table(adults)
+sum(adults)
+#######
+eldrlies<-subset(fil$Age,fil$Age>=21&fil$No.show=="Yes")
+table(eldrlies)
+sum(eldrlies)
+
+
+
+#2.9
+fil<-fil[!(fil$Age==0 | fil$Age==-1),]
+childrenRange<-subset(fil$Age,fil$Age<12&fil$No.show=="No")
+sum(childrenRange)
+#######
+teenagersRange<-subset(fil$Age,fil$Age>=12&fil$Age<18&fil$No.show=="No")
+table(teenagersRange)
+sum(teenagersRange)
+#######
+adultsRange<-subset(fil$Age,fil$Age>=18&fil$Age<21&fil$No.show=="No")
+table(adultsRange)
+sum(adultsRange)
+#######
+eldrliesRange<-subset(fil$Age,fil$Age>=21&fil$No.show=="No")
+table(eldrliesRange)
+sum(eldrliesRange)
+
+
+#2.10
+appointment<-as.Date(fil$AppointmentDay)
+firstMonth<-subset(fil$AppointmentDay,format.Date(appointment,"%m")=="04"&fil$No.show=="Yes")
+secondMonth<-subset(fil$AppointmentDay,format.Date(appointment,"%m")=="05"&fil$No.show=="Yes")
+thirdMonth<-subset(fil$AppointmentDay,format.Date(appointment,"%m")=="06"&fil$No.show=="Yes")
+xaxes<-c(4,5,6)
+yaxex<-c(length(firstMonth),length(secondMonth),length(thirdMonth))
+plot(x = xaxes,y =yaxex,type="l",xlab = "Months",ylab = "Number of visits")
+
+m=months(appointment)
+x=table(m,fil$No.show)
+plot(x,type = "l")
