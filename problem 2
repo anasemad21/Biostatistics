@@ -1,0 +1,126 @@
+## ----install_packages---------------------------------------
+##if (!requireNamespace("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#BiocManager::install()
+#BiocManager::install("antiProfilesData")
+#################################################
+
+
+#######################################
+dataa=antiProfilesData::apColonData
+#typeof(dataa)
+class(dataa)
+dim(dataa)
+summary(dataa)
+
+featdata<-fData(dataa)
+featdata
+phenodata<-pData(dataa)
+phenodata
+expresdata<-exprs(dataa)
+expresdata
+dim(expresdata)
+dim(phenodata)
+dim(featdata)
+frame_expresdata<-as.data.frame(expresdata)
+frame_phenodata<-as.data.frame(phenodata)
+##########################################
+##1.a
+
+for (i in colnames(expresdata)){  
+  print(class(expresdata[i]))
+}
+##
+for (i in colnames(phenodata)){  
+  print(class(phenodata[i]))
+}
+
+##1.b
+col_Names<-colnames(expresdata)
+col_Names
+row_Names<-rownames(expresdata)
+row_Names
+
+####
+col_Names_pheno<-colnames(phenodata)
+col_Names_pheno
+row_Names_pheno<-rownames(phenodata)
+row_Names_pheno
+
+##1.c
+vec_col_ex=colnames(frame_expresdata)
+for (i in vec_col_ex){
+  print(summary(frame_expresdata[[i]]))
+}
+##
+vec_col_pheno=colnames(frame_phenodata)
+for (i in vec_col_pheno){
+  print(summary(frame_phenodata[i]))
+}
+
+##1.d
+table(phenodata$SubType,useNA="ifany")
+table(phenodata$ClinicalGroup,useNA="ifany")
+table(phenodata$Tissue,useNA="ifany")
+table(phenodata$Status,useNA="ifany")
+
+
+##1.e
+library(corrplot)
+x<-expresdata[,1:10]
+cov(x, y=NULL)   #linear
+#cor(x,y=NULL,method = "kendall")
+res <- cor(x,y=NULL,method = "kendall")
+res
+corrplot(res, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+dev.copy(device = jpeg, file = "1eplot.jpeg")
+dev.off( )
+##1.f
+new_Expdata<-as.data.frame(expresdata)
+dev.copy(device = jpeg, file = "1fplot.jpeg")
+plot(new_Expdata$GSM95478,new_Expdata$GSM95473)
+abline(lm(new_Expdata$GSM95478~new_Expdata$GSM95473),col='green',lwd=2)
+dev.off( )
+
+######################################
+##Q:2
+Pca1= prcomp(new_Expdata)
+Pca1
+edata_centered<-t(t(new_Expdata)-colMeans(new_Expdata))
+svd2<-svd(edata_centered)
+svd2
+plot(Pca1$rotation[,1],svd2$v[,1])
+plot(pca1$rotation)
+dev.copy(device = jpeg, file = "Q2plot2.jpeg")
+dev.off( )
+
+dev.copy(device = jpeg, file = "Q2plot.jpeg")
+dev.off( )
+#########################################
+##Q:3
+
+# H0:uniformly distributed over zodiac signs
+# H1:not uniformly distributed over zodiac signs
+num<-rep(256/12,12)
+p<-num/sum(num)
+categories<- as.factor(c(rep("Aries" ,29),rep("Aquarius",20),rep("Taurus",24) , rep("Gemini ",22), rep("Cancer ",19),rep("Leo",21),rep("Virgo",18),rep("Libra",19),rep("Scorpio",20),rep("Sagittarius",23),rep("Capricorn",18),rep("Pisces",23)))
+chisq.test(table(categories),p = p)
+# So H0 is confirmed as  p value =0.9265 which is
+#greater than 0.005 so we accept null hypothesis.
+
+############################################
+##Q:4
+part<-expresdata[,1:10]
+dim(part)
+dist1 = dist(t(part))
+dist1
+hclust1 = hclust(dist1)
+plot(hclust1,hang = -1)
+dev.copy(device = jpeg, file = "Q4plot.jpeg")
+dev.off( )
+
+result_kmean = kmeans(expresdata,centers = 3)
+result_kmean
+table(result_kmean$cluster)
+result_kmean$centers
